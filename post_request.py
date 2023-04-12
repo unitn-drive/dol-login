@@ -10,7 +10,8 @@ session = requests.Session()
 
 # get request per ottenere i cookie
 
-session.get('https://didatticaonline.unitn.it/dol/login/index.php', allow_redirects=True)
+session.get('https://didatticaonline.unitn.it/dol/login/index.php',
+            allow_redirects=True)
 
 # get request per ottenere execution id
 
@@ -39,4 +40,3 @@ url = '	https://didatticaonline.unitn.it/dol/course/index.php?categoryid=682'
 yy = session.get(url, allow_redirects=True)
 print(yy.status_code)
 assert yy.status_code == 200
-
