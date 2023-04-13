@@ -19,10 +19,7 @@ session = requests.Session()
 res = session.get(
     'https://webapps.unitn.it/GestioneCorsi/IndexAuth', allow_redirects=True)
 
-# # print history of requests
-# for i in res.history:
-#     print(i.url)
-
+print(res.url)
 # extract RelyState from last request
 relayState = res.history[-1].url.split('RelayState=')[1]
 
@@ -32,15 +29,13 @@ location = res.history[-1].headers.get('Location')
 # extract execution number from location
 execution = location.split('execution=')[1]
 
-# last get (redirect) request
-res = session.get(idp_url + location, allow_redirects=True)
-
 cookies = session.cookies.get_dict()
 # post for SAMLResponse, RelayState
 url = 'https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution='+execution
 data = {'j_username': username,
         'j_password': password,
-        'dominio': '@unitn.it'}
+        'dominio': '@unitn.it',
+        '_eventId_proceed': ''}
 headers = {"Host": "idp.unitn.it",
            "Accept": "text/html, application/xhtml+xml, application/xml;q=0.9, image/avif, image/webp, */*;q=0.8",
            "Accept-Language": "en-US, en",
@@ -63,4 +58,13 @@ headers = {"Host": "idp.unitn.it",
            }
 
 res = session.post(url, data=data, headers=headers, allow_redirects=False)
-print(res.text)
+
+# save html
+with open('list_file.html', 'w') as file:
+    file.write(res.text)
+
+
+# # print history of requests
+# for i in res.history:
+#     print(i.status_code, i.url)
+# print(res.url)
