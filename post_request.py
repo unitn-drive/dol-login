@@ -42,6 +42,7 @@ url = 'idsrv.unitn.it/sts/identity/saml2service/Acs'
 # accesso a didattica online unitn tramite idp
 
 # get request per ottenere i cookie
+
 session.get('https://didatticaonline.unitn.it/dol/login/index.php',
             allow_redirects=True)
 
