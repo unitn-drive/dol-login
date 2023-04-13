@@ -2,13 +2,7 @@ from dotenv import load_dotenv
 import requests
 import os
 from bs4 import BeautifulSoup as BS
-from pprint import pprint
 
-
-webapp_url = 'https://webapps.unitn.it'
-dol_url = 'https://didatticaonline.unitn.it/dol'
-idp_url = 'https://idp.unitn.it'
-idsrv_url = 'https://idsrv.unitn.it'
 
 load_dotenv()
 username = os.getenv('username')
@@ -74,11 +68,33 @@ data = {'code': code, 'id_token': id_token, 'scope': scope,
         'state': state, 'session_state': session_state}
 res = session.post(url, data=data, allow_redirects=True)
 
+# extract authorization Bearer token to get courses
+soup = BS(res.text, 'html.parser')
+script_with_auth = soup.findAll('script')[9]
+auth = str(script_with_auth).split('Bearer ', 1)[1].split('"')[0]
 
-# save html
-with open('response_post.html', 'w') as file:
+
+# get attended courses
+url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/corsi/'
+headers = {'Authorization': 'Bearer ' + auth}
+res = session.get(url, headers=headers, allow_redirects=True)
+
+# save json
+with open('attended_courses.json', 'w') as file:
     file.write(res.text)
 
+# get aviable courses
+url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/possibilicorsi/'
+headers = {'Authorization': 'Bearer ' + auth}
+res = session.get(url, headers=headers, allow_redirects=True)
+
+# save json
+with open('aviable_courses.json', 'w') as file:
+    file.write(res.text)
+
+# # save html
+# with open('response_post.html', 'w') as file:
+#     file.write(res.text)
 
 # # print history of requests
 # for i in res.history:
