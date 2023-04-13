@@ -1,18 +1,20 @@
 from dotenv import load_dotenv
 import requests
 import os
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as BS
 from pprint import pprint
-load_dotenv()
+
 
 webapp_url = 'https://webapps.unitn.it'
 dol_url = 'https://didatticaonline.unitn.it/dol'
 idp_url = 'https://idp.unitn.it'
 idsrv_url = 'https://idsrv.unitn.it'
 
-username = os.getenv('USERNAME')
-password = os.getenv('PASSWORD')
+load_dotenv()
+username = os.getenv('username')
+password = os.getenv('password')
 session = requests.Session()
+# print("Username and password:", username, password)
 
 # accesso a webapp unitn
 # accesso a webapp unitn
@@ -29,13 +31,49 @@ location = res.history[-1].headers.get('Location')
 execution = location.split('execution=')[1]
 
 cookies = session.cookies.get_dict()
-# post for SAMLResponse, RelayState (don't need headers)
+# post for SAMLResponse, RelayState
 url = 'https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution='+execution
 data = {'j_username': username,
         'j_password': password,
         'dominio': '@unitn.it',
         '_eventId_proceed': ''}
+
 res = session.post(url, data=data, allow_redirects=True)
+
+# extract SAMLResponse from last request
+soup = BS(res.text, 'html.parser')
+try:
+    tokenRelayState = soup.find('input', {'name': 'RelayState'}).get('value')
+    tokenSAMLResponse = soup.find(
+        'input', {'name': 'SAMLResponse'}).get('value')
+except Exception as e:
+    print("Got unhandled exception %s" %
+          str(e) + ", while extracting from: " + res.url)
+
+
+# post to idsrv.unitn.it with tokens(Acs)
+url = 'https://idsrv.unitn.it/sts/identity/saml2service/Acs'
+data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
+res = session.post(url, data=data, allow_redirects=True)
+
+# extract next post url, code, id_token, scope, state, session_state
+soup = BS(res.text, 'html.parser')
+try:
+    url = soup.find('form').get('action')
+    code = soup.find('input', {'name': 'code'}).get('value')
+    id_token = soup.find('input', {'name': 'id_token'}).get('value')
+    scope = soup.find('input', {'name': 'scope'}).get('value')
+    state = soup.find('input', {'name': 'state'}).get('value')
+    session_state = soup.find('input', {'name': 'session_state'}).get('value')
+except Exception as e:
+    print("Got unhandled exception %s" %
+          str(e) + ", while extracting from: " + res.url)
+
+# callback with tokens to webapps.unitn.it/GestioneCorsi/callback (maybe)
+data = {'code': code, 'id_token': id_token, 'scope': scope,
+        'state': state, 'session_state': session_state}
+res = session.post(url, data=data, allow_redirects=True)
+
 
 # save html
 with open('response_post.html', 'w') as file:
