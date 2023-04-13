@@ -57,7 +57,12 @@ headers = {"Host": "idp.unitn.it",
            "TE": "trailers"
            }
 
-res = session.post(url, data=data, headers=headers, allow_redirects=False)
+res = session.post(url, data=data, headers=headers, allow_redirects=True)
+
+print(res.url)
+
+res = session.post(res.url, data=data, headers=headers, allow_redirects=True)
+
 
 # save html
 with open('list_file.html', 'w') as file:
