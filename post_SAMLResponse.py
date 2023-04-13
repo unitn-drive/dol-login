@@ -19,7 +19,6 @@ session = requests.Session()
 res = session.get(
     'https://webapps.unitn.it/GestioneCorsi/IndexAuth', allow_redirects=True)
 
-print(res.url)
 # extract RelyState from last request
 relayState = res.history[-1].url.split('RelayState=')[1]
 
@@ -30,42 +29,16 @@ location = res.history[-1].headers.get('Location')
 execution = location.split('execution=')[1]
 
 cookies = session.cookies.get_dict()
-# post for SAMLResponse, RelayState
+# post for SAMLResponse, RelayState (don't need headers)
 url = 'https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution='+execution
 data = {'j_username': username,
         'j_password': password,
         'dominio': '@unitn.it',
         '_eventId_proceed': ''}
-headers = {"Host": "idp.unitn.it",
-           "Accept": "text/html, application/xhtml+xml, application/xml;q=0.9, image/avif, image/webp, */*;q=0.8",
-           "Accept-Language": "en-US, en",
-           "Accept-Encoding": "gzip, deflate, br",
-           "Content-Type": "application/x-www-form-urlencoded",
-           "Content-Length": "100",
-           "Cookie": "JSESSIONID=" + cookies['JSESSIONID'] + "; cookie-agreed-version=1.0.1",
-           "Origin": "https://idp.unitn.it",
-           "Connection": "keep-alive",
-           "Referer": "https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution="+execution,
-           "Upgrade-Insecure-Requests": "1",
-           "Sec-Fetch-Dest": "document",
-           "Sec-Fetch-Mode": "navigate",
-           "Sec-Fetch-Site": "same-origin",
-           "Sec-Fetch-User": "?1",
-           "Sec-GPC": "1",
-           "Upgrade-Insecure-Requests": "1",
-           "User-Agent": "Mozilla/5.0",
-           "TE": "trailers"
-           }
-
-res = session.post(url, data=data, headers=headers, allow_redirects=True)
-
-print(res.url)
-
-res = session.post(res.url, data=data, headers=headers, allow_redirects=True)
-
+res = session.post(url, data=data, allow_redirects=True)
 
 # save html
-with open('list_file.html', 'w') as file:
+with open('response_post.html', 'w') as file:
     file.write(res.text)
 
 
