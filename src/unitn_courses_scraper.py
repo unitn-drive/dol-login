@@ -24,17 +24,18 @@ def extract_SAMLRessponse_from_HTML(res):
 
 # print("Username and password:", username, password)
 
+
 def scrape(env: str,
            list_enrolled: bool,
            list_available: bool) -> None:
-    
+
     load_dotenv(dotenv_path=env)
     username = os.getenv('username')
     password = os.getenv('password')
 
     if username == "" or password == "" or username == None or password == None:
         raise ValueError('Fill your username and password in .env')
-    
+
     session = requests.Session()
 
     # accesso a webapp unitn
@@ -78,10 +79,11 @@ def scrape(env: str,
         id_token = soup.find('input', {'name': 'id_token'}).get('value')
         scope = soup.find('input', {'name': 'scope'}).get('value')
         state = soup.find('input', {'name': 'state'}).get('value')
-        session_state = soup.find('input', {'name': 'session_state'}).get('value')
+        session_state = soup.find(
+            'input', {'name': 'session_state'}).get('value')
     except Exception as e:
         print("Got unhandled exception %s" %
-            str(e) + ", while extracting from: " + res.url)
+              str(e) + ", while extracting from: " + res.url)
 
     # callback with tokens to webapps.unitn.it/GestioneCorsi/callback (maybe)
     data = {'code': code, 'id_token': id_token, 'scope': scope,
@@ -92,7 +94,6 @@ def scrape(env: str,
     soup = BS(res.text, 'html.parser')
     script_with_auth = soup.findAll('script')[9]
     auth = str(script_with_auth).split('Bearer ', 1)[1].split('"')[0]
-
 
     # get attended courses
     url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/corsi/'
@@ -111,7 +112,6 @@ def scrape(env: str,
     # # save json
     # with open('aviable_courses.json', 'w') as file:
     #     file.write(res.text)
-
 
     # output list of courses
     json = res.json()
@@ -158,4 +158,4 @@ def scrape(env: str,
 # print(res.url)
 
 if __name__ == "__main__":
-    main()
+    scrape()
