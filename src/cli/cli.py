@@ -1,5 +1,6 @@
 import argparse
-from src.unitn_courses_scraper import scrape
+from login.login import scrape
+from login.login import login
 
 
 def main():

@@ -23,4 +23,4 @@ keywords=['unitn', 'courses', 'scraper', '@unitn.it',
 dependencies=['python-dotenv >= 1.0.0', 'requests >= 2.28.2', 'grequests >= 0.6.0', 'beautifulsoup4 >= 4.12.2']
 
 [project.scripts]
-dol-scraper = "unitn-course-scraper.cli:main"
+dol-scraper = "cli.cli:main"

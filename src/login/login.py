@@ -5,9 +5,36 @@ from bs4 import BeautifulSoup as BS
 import json
 
 
+# clean json courses list
+def clean_json_list(json_list):
+    # removing multi language substring and setting url of each course
+    for i in json_list:
+        if 'id' not in i['urlMoodle']:
+            json_list.remove(i)
+
+        if '{mlang other}' in i['fullName']:
+            i['fullName'] = i['fullName'].split('{mlang other}', 1)[
+                1].split('{mlang}', 1)[0]
+
+        #i['url'] = i['urlMoodle'].split('target=', 1)[1]
+
+    return json_list
+
+# function to save HTML text to a file
+
+
 def saveHTML(name, res):
     with open(name + '.html', 'w') as file:
         file.write(res.text)
+
+# function to save json text to a file
+
+
+def saveJSON(name, data):
+    with open(name + '.json', 'w') as file:
+        json.dump(data, file, indent=4)
+
+# extract relay state token from html
 
 
 def extract_RelayState_from_HTML(res):
@@ -18,8 +45,10 @@ def extract_RelayState_from_HTML(res):
         print("Got unhandled exception %s" %
               str(e) + ", while extracting RelayState from: " + res.url)
 
+# extract SAML response token from html
 
-def extract_SAMLRessponse_from_HTML(res):
+
+def extract_SAMLResponse_from_HTML(res):
     soup = BS(res.text, 'html.parser')
     try:
         return soup.find('input', {'name': 'SAMLResponse'}).get('value')
@@ -27,29 +56,18 @@ def extract_SAMLRessponse_from_HTML(res):
         print("Got unhandled exception %s" %
               str(e) + ", while extracting SAMLResponse from: " + res.url)
 
-# print("Username and password:", username, password)
+# function to login that return (session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data)
 
 
-def scrape(env: str,
-           list_enrolled: bool,
-           list_available: bool) -> None:
-
-    load_dotenv(dotenv_path=env)
-    username = os.getenv('username')
-    password = os.getenv('password')
-
-    if username == "" or password == "" or username == None or password == None:
-        raise ValueError('Fill your username and password in .env')
-
+def login(username, password):
     session = requests.Session()
 
-    # accesso a webapp unitn
     # accesso a webapp unitn
     res = session.get(
         'https://webapps.unitn.it/GestioneCorsi/IndexAuth', allow_redirects=True)
 
     # extract RelyState from last request
-    relayState = res.history[-1].url.split('RelayState=')[1]
+    # relayState = res.history[-1].url.split('RelayState=')[1]
 
     # extract location from last request
     location = res.history[-1].headers.get('Location')
@@ -57,7 +75,6 @@ def scrape(env: str,
     # extract execution number from location
     execution = location.split('execution=')[1]
 
-    cookies = session.cookies.get_dict()
     # post for SAMLResponse, RelayState
     url = 'https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution='+execution
     data = {'j_username': username,
@@ -67,11 +84,11 @@ def scrape(env: str,
 
     res = session.post(url, data=data, allow_redirects=True)
 
-    saveHTML('DEBUG_POST_REQ', res)
+    # saveHTML('DEBUG_POST_REQ', res)
 
     # extract RelayState and SAMLResponse from last request
     tokenRelayState = extract_RelayState_from_HTML(res)
-    tokenSAMLResponse = extract_SAMLRessponse_from_HTML(res)
+    tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
 
     # post to idsrv.unitn.it with tokens(Acs)
     url = 'https://idsrv.unitn.it/sts/identity/saml2service/Acs'
@@ -101,34 +118,52 @@ def scrape(env: str,
     soup = BS(res.text, 'html.parser')
     script_with_auth = soup.findAll('script')[9]
     auth = str(script_with_auth).split('Bearer ', 1)[1].split('"')[0]
+    Bearer_auth = 'Bearer ' + auth
+    return (session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data)
 
-    # get attended courses
+# function to get json list of attended courses
+
+
+def get_attended_courses(session, auth):
     url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/corsi/'
-    headers = {'Authorization': 'Bearer ' + auth}
+    headers = {'Authorization': auth}
     res = session.get(url, headers=headers, allow_redirects=True)
 
-    # save json
-    with open('attended_courses.json', 'w') as file:
-        file.write(res.text)
-
-    # # get aviable courses
-    # url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/possibilicorsi/'
-    # headers = {'Authorization': 'Bearer ' + auth}
-    # res = session.get(url, headers=headers, allow_redirects=True)
-
-    # # save json
-    # with open('aviable_courses.json', 'w') as file:
-    #     file.write(res.text)
-
     # output list of courses
-    json = res.json()
+    json_list = res.json()
+    return clean_json_list(json_list)
 
-    # removing multi language substring and setting url of each course
-    for i in json:
-        if '{mlang other}' in i['fullName']:
-            i['fullName'] = i['fullName'].split('{mlang other}', 1)[
-                1].split('{mlang}', 1)[0]
-        i['url'] = i['urlMoodle'].split('target=', 1)[1]
+
+# function to get json list of available courses
+
+
+def get_available_courses(session, auth):
+    url = 'https://webapps.unitn.it/api/gestionecorsi/v1/studente/possibilicorsi/'
+    headers = {'Authorization': auth}
+    res = session.get(url, headers=headers, allow_redirects=True)
+    # output list of courses
+    json_list = res.json()
+    return clean_json_list(json_list)
+
+
+def scrape(env: str,
+           list_enrolled: bool,
+           list_available: bool) -> None:
+
+    load_dotenv(dotenv_path=env)
+    username = os.getenv('username')
+    password = os.getenv('password')
+
+    if username == "" or password == "" or username == None or password == None:
+        raise ValueError('Fill your username and password in .env')
+
+    session, auth, tokenRelayState, tokenSAMLResponse, data = login(
+        username, password)
+
+    #get_attended_courses(session, auth)
+    json = get_available_courses(session, auth)
+
+    # print_courses_list(list)
 
     # visiting first course
     course = json[0]
@@ -138,7 +173,7 @@ def scrape(env: str,
 
     # extract RelayState and SAMLResponse from last request
     tokenRelayState = extract_RelayState_from_HTML(res)
-    tokenSAMLResponse = extract_SAMLRessponse_from_HTML(res)
+    tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
 
     # post to dol with tokens
     url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
