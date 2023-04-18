@@ -5,6 +5,11 @@ from bs4 import BeautifulSoup as BS
 import json
 
 
+def saveHTML(name, res):
+    with open(name + '.html', 'w') as file:
+        file.write(res.text)
+
+
 def extract_RelayState_from_HTML(res):
     soup = BS(res.text, 'html.parser')
     try:
@@ -61,6 +66,8 @@ def scrape(env: str,
             '_eventId_proceed': ''}
 
     res = session.post(url, data=data, allow_redirects=True)
+
+    saveHTML('DEBUG_POST_REQ', res)
 
     # extract RelayState and SAMLResponse from last request
     tokenRelayState = extract_RelayState_from_HTML(res)
@@ -142,20 +149,14 @@ def scrape(env: str,
     print(res.url)
 
 
-# # save html
-# with open('course_page.html', 'w') as file:
-#     file.write(res.text)
-
 # # print courses names
 # for i in json:
 #     print(i['fullName'])
 #     print()
 
-
 # # print history of requests
 # for i in res.history:
 #     print(i.status_code, i.url)
 # print(res.url)
-
 if __name__ == "__main__":
     scrape()
