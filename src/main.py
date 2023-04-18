@@ -17,7 +17,7 @@ listgroup.add_argument('--list-all', '--all', '-a',   action=argparse.BooleanOpt
                        help='Show list of all courses')
 
 
-# Show course info
+# Show course infuo
 coursegroup = parser.add_mutually_exclusive_group()
 coursegroup.add_argument('--code', '--course-code', '-c', action='store', metavar='COURSE_CODE',
                          type=int, help='Show course info, selecting by code')
