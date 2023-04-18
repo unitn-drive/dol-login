@@ -24,12 +24,13 @@ def extract_SAMLRessponse_from_HTML(res):
 
 # print("Username and password:", username, password)
 
-def main():
-    load_dotenv()
+def scrape(env: str,
+           list_enrolled: bool,
+           list_available: bool) -> None:
+    
+    load_dotenv(dotenv_path=env)
     username = os.getenv('username')
     password = os.getenv('password')
-
-    print(username)
 
     if username == "" or password == "" or username == None or password == None:
         raise ValueError('Fill your username and password in .env')
