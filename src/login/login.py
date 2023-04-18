@@ -5,18 +5,31 @@ from bs4 import BeautifulSoup as BS
 import json
 
 
+# get username and password input
+def input(env: str):
+    load_dotenv(dotenv_path=env)
+    username = os.getenv('username')
+    password = os.getenv('password')
+
+    if username == "" or password == "" or username == None or password == None:
+        raise ValueError('Fill your username and password in .env')
+
+    return username, password
+
 # clean json courses list
+
+
 def clean_json_list(json_list):
     # removing multi language substring and setting url of each course
     for i in json_list:
         if 'id' not in i['urlMoodle']:
             json_list.remove(i)
+        else:
+            if '{mlang other}' in i['fullName']:
+                i['fullName'] = i['fullName'].split('{mlang other}', 1)[
+                    1].split('{mlang}', 1)[0]
 
-        if '{mlang other}' in i['fullName']:
-            i['fullName'] = i['fullName'].split('{mlang other}', 1)[
-                1].split('{mlang}', 1)[0]
-
-        #i['url'] = i['urlMoodle'].split('target=', 1)[1]
+            i['url'] = i['urlMoodle'].split('target=', 1)[1]
 
     return json_list
 
@@ -146,42 +159,40 @@ def get_available_courses(session, auth):
     return clean_json_list(json_list)
 
 
-def scrape(env: str,
-           list_enrolled: bool,
-           list_available: bool) -> None:
+# get course content
+def get_course_content(session, auth, url):
+    res = session.get(
+        url, headers={'Authorization': auth}, allow_redirects=True)
+    return True
 
-    load_dotenv(dotenv_path=env)
-    username = os.getenv('username')
-    password = os.getenv('password')
 
-    if username == "" or password == "" or username == None or password == None:
-        raise ValueError('Fill your username and password in .env')
+# def scrape(env: str,
+#            list_enrolled: bool,
+#            list_available: bool) -> None:
 
-    session, auth, tokenRelayState, tokenSAMLResponse, data = login(
-        username, password)
 
-    #get_attended_courses(session, auth)
-    json = get_available_courses(session, auth)
+#     #get_attended_courses(session, auth)
+#     json = get_available_courses(session, auth)
 
-    # print_courses_list(list)
+#     # print_courses_list(list)
 
-    # visiting first course
-    course = json[0]
+#     # visiting first course
+#     course = json[0]
 
-    # ACTUALLY THE SECOND AUTHENTICATION
-    res = session.get(course['urlMoodle'], allow_redirects=True)
+#     # ACTUALLY THE SECOND AUTHENTICATION
+#     res = session.get(course['urlMoodle'], allow_redirects=True)
 
-    # extract RelayState and SAMLResponse from last request
-    tokenRelayState = extract_RelayState_from_HTML(res)
-    tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
+#     # extract RelayState and SAMLResponse from last request
+#     tokenRelayState = extract_RelayState_from_HTML(res)
+#     tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
 
-    # post to dol with tokens
-    url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
-    data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
-    res = session.post(url, data=data, allow_redirects=True)
+#     # post to dol with tokens
+#     url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
+#     data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
+#     res = session.post(url, data=data, allow_redirects=True)
 
-    # should be redirected to course page
-    print(res.url)
+#     # should be redirected to course page
+#     print(res.url)
 
 
 # # print courses names
@@ -193,5 +204,3 @@ def scrape(env: str,
 # for i in res.history:
 #     print(i.status_code, i.url)
 # print(res.url)
-if __name__ == "__main__":
-    scrape()

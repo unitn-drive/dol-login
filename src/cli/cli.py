@@ -1,5 +1,4 @@
 import argparse
-from login.login import scrape
 from login.login import login
 
 
@@ -44,11 +43,19 @@ def main():
         args.list_enrolled = True
         args.list_available = True
 
-    scrape(
-        env=args.env,
-        list_enrolled=args.list_enrolled,
-        list_available=args.list_available
+    username, password = input(
+        env=args.env
     )
+    session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data = login(
+        username, password)
+
+    print("ATTENDED COURSES")
+
+    print(get_attended_courses(session, Bearer_auth))
+
+    print("AVAILABLE COURSES")
+
+    print(get_available_courses(session, Bearer_auth))
 
 
 if __name__ == "__main__":
