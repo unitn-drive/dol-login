@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import requests
 import os
 from bs4 import BeautifulSoup as BS
-import json
 
 
 # get username and password input
@@ -32,19 +31,7 @@ def clean_json_list(json_list):
 
     return json_list
 
-# function to save HTML text to a file
 
-
-def saveHTML(name, res):
-    with open(name + '.html', 'w') as file:
-        file.write(res.text)
-
-# function to save json text to a file
-
-
-def saveJSON(name, data):
-    with open(name + '.json', 'w') as file:
-        json.dump(data, file, indent=4)
 
 # extract relay state token from html
 
