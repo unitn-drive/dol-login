@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name='unitn_course_scraper'
-version='0.0.6'
+version='0.1.0'
 authors=[
-    { name="Disi Drive Team", email="unitndrive@gmail.com" }
+    { name="DISI Drive Team", email="unitndrive@gmail.com" }
 ]
 description='Interactive scraper for your UniTN courses'
 readme='README.md'
@@ -21,6 +21,3 @@ classifiers=["Programming Language :: Python :: 3.7",
 keywords=['unitn', 'courses', 'scraper', '@unitn.it',
               'moodle', 'dol', 'gestionecorsi', 'didatticaonline']
 dependencies=['python-dotenv >= 1.0.0', 'requests >= 2.28.2', 'grequests >= 0.6.0', 'beautifulsoup4 >= 4.12.2']
-
-[project.scripts]
-dol-scraper = "cli.cli:main"

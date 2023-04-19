@@ -1,8 +1,9 @@
 import argparse
-from login.login import login
+from src.login.login import scrape
+from src.login.login import login
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(
         description='A python program to scrape unitn courses and store resources in a local folder')
 
@@ -56,7 +57,3 @@ def main():
     print("AVAILABLE COURSES")
 
     print(get_available_courses(session, Bearer_auth))
-
-
-if __name__ == "__main__":
-    main()
