@@ -3,7 +3,7 @@ from login.login import login
 from login.login import input
 from login.login import get_attended_courses
 from login.login import get_available_courses
-from login.login import saveJSON
+from utils.utils import saveJSON
 
 
 def parse_args():
@@ -53,10 +53,10 @@ def parse_args():
     session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data = login(
         username, password)
 
-    # if args.list_enrolled:
-    #     print("ATTENDED COURSES")
-    #     print(get_attended_courses(session, Bearer_auth))
+    if args.list_enrolled:
+        print("ATTENDED COURSES")
+        saveJSON('attended_courses', get_attended_courses(session, Bearer_auth))
 
-    # if args.list_available:
-    #     print("AVAILABLE COURSES")
-    #     print(get_available_courses(session, Bearer_auth))
+    if args.list_available:
+        print("AVAILABLE COURSES")
+        saveJSON('avaiable_courses', get_available_courses(session, Bearer_auth))
