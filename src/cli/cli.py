@@ -1,5 +1,5 @@
 import argparse
-from login.login import login
+from login.login import login, login_dol
 from login.login import input
 from login.login import get_attended_courses
 from login.login import get_available_courses
@@ -64,5 +64,6 @@ def parse_args():
     sampleCourse = 'https://webapps.unitn.it/geco/#/public/redirectcorso/2022|91290|1|N0|75022'
     url = subscribe(session, Bearer_auth, sampleCourse)
     print(url)
-    unsubscribe(session, Bearer_auth, url)
+    login_dol(session)
+    unsubscribe(session, url)
     

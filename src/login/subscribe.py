@@ -31,22 +31,5 @@ def extract_enrolid_from_HTML(res: Response):
               str(e) + ", while extracting enrolid from: " + res.url)
 
 
-def unsubscribe(session: Session, Bearer_auth: str, courseUrl: str) -> None:
+def unsubscribe(session: Session, courseUrl: str) -> None:
     res = session.get(courseUrl, allow_redirects=True)
-
-    url = 'https://didatticaonline.unitn.it/dol/loginUniTN.php'
-    res = session.get(url, allow_redirects=True)
-
-
-    # extract location from last request
-    location = res.history[-1].headers.get('Location')
-
-    # extract execution number from location
-    execution = location.split('execution=')[1]
-
-
-
-    url = 'https://idp.unitn.it/idp/profile/SAML2/Redirect/SSO?execution='+execution
-    assert res.status_code == 200
-    enrolid = extract_enrolid_from_HTML(res)
-    print(enrolid)
