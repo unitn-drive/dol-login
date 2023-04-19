@@ -3,6 +3,7 @@ from login.login import login
 from login.login import input
 from login.login import get_attended_courses
 from login.login import get_available_courses
+from login.login import saveJSON
 
 
 def parse_args():
@@ -54,8 +55,8 @@ def parse_args():
 
     print("ATTENDED COURSES")
 
-    print(get_attended_courses(session, Bearer_auth))
+    saveJSON('attended_courses', get_attended_courses(session, Bearer_auth))
 
     print("AVAILABLE COURSES")
 
-    print(get_available_courses(session, Bearer_auth))
+    saveJSON('available_courses', get_available_courses(session, Bearer_auth))

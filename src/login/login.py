@@ -28,7 +28,6 @@ def clean_json_list(json_list):
             if '{mlang other}' in i['fullName']:
                 i['fullName'] = i['fullName'].split('{mlang other}', 1)[
                     1].split('{mlang}', 1)[0]
-
             i['url'] = i['urlMoodle'].split('target=', 1)[1]
 
     return json_list
@@ -156,7 +155,7 @@ def get_available_courses(session, auth):
     res = session.get(url, headers=headers, allow_redirects=True)
     # output list of courses
     json_list = res.json()
-    return clean_json_list(json_list)
+    return json_list
 
 
 # get course content
