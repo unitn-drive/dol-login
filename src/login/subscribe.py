@@ -36,12 +36,13 @@ def unsubscribe(session: Session, courseUrl: str) -> None:
     # try catch to handle the case where the user is not enrolled
     # and we cannot find the enrolid
     # warning, potential infinite loop
+    enrolid = None
     try:
         enrolid = extract_enrolid_from_HTML(res)
     except Exception as e:
         login_dol(session)
         unsubscribe(session, courseUrl)
-        
+
     sesskey = extract_sesskey_from_HTML(res)
     url = 'https://didatticaonline.unitn.it/dol/enrol/manual/unenrolself.php'
     data = {
@@ -50,4 +51,3 @@ def unsubscribe(session: Session, courseUrl: str) -> None:
         'sesskey': sesskey,
     }
     res = session.post(url, data=data, allow_redirects=True)
-    print(res.status_code)
