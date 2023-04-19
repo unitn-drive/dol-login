@@ -61,7 +61,8 @@ def parse_args():
     #     print("AVAILABLE COURSES")
     #     saveJSON('avaiable_courses', get_available_courses(session, Bearer_auth))
 
-    # sampleCourse = 'https://webapps.unitn.it/geco/#/public/redirectcorso/2022|91290|1|N0|75022'
-    # url = subscribe(session, Bearer_auth, sampleCourse)
-    # print(url)
+    sampleCourse = 'https://webapps.unitn.it/geco/#/public/redirectcorso/2022|91290|1|N0|75022'
+    url = subscribe(session, Bearer_auth, sampleCourse)
+    print(url)
+    unsubscribe(session, Bearer_auth, url)
     
