@@ -1,6 +1,8 @@
 import argparse
-from src.login.login import scrape
 from src.login.login import login
+from src.login.login import input
+from src.login.login import get_attended_courses
+from src.login.login import get_available_courses
 
 
 def parse_args():
