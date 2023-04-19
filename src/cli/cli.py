@@ -4,7 +4,7 @@ from login.login import input
 from login.login import get_attended_courses
 from login.login import get_available_courses
 from utils.utils import saveJSON
-
+# from login.subscribe import subscribe
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -60,3 +60,5 @@ def parse_args():
     if args.list_available:
         print("AVAILABLE COURSES")
         saveJSON('avaiable_courses', get_available_courses(session, Bearer_auth))
+
+    # subscribe(session, 'Prova Pinamonti')

@@ -142,7 +142,7 @@ def get_available_courses(session, auth):
     res = session.get(url, headers=headers, allow_redirects=True)
     # output list of courses
     json_list = res.json()
-    return json_list
+    return clean_json_list(json_list)
 
 
 # get course content
