@@ -6,10 +6,10 @@ It allows you to get resources from the courses that you are taking and the cour
 
 ## Getting started
 
-- Install a fresh version of Python 3.11 to your local machine (with your virtual environment management of choice)
-- Install the requirements with `pip install -r requirements.txt`
-- Add a copy of the `.env` file to the root of the project (instructions are found in the `.env.example` file). Env file can be specified via command line arguments. When creating your `.env` file you should avoid using the **.studenti** sub-domain; It should look like this: **name.surname**@unitn.it
-- Add the "-h" argument to get further informations.
+- Install it with `pip install unitn-course-scraper`
+- Create your own `.env` file (instructions are found in the `.env.example` file). Its path needs to be specified via command line arguments. When creating your `.env` file you should avoid using the **.studenti** sub-domain; It should look like this: **name.surname**@unitn.it
+- Run it with `unitn-course-scraper -E .env`
+- Use the "-h" argument to get further informations.
 
 ## What does it do
 
