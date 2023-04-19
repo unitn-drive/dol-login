@@ -152,41 +152,14 @@ def get_course_content(session, auth, url):
     return True
 
 
-# def scrape(env: str,
-#            list_enrolled: bool,
-#            list_available: bool) -> None:
+def login_dol(session: requests.Session):
+    res = session.get('https://didatticaonline.unitn.it/dol/auth/shibboleth/index.php', allow_redirects=True)
 
+    # extract RelayState and SAMLResponse from last request
+    tokenRelayState = extract_RelayState_from_HTML(res)
+    tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
 
-#     #get_attended_courses(session, auth)
-#     json = get_available_courses(session, auth)
-
-#     # print_courses_list(list)
-
-#     # visiting first course
-#     course = json[0]
-
-#     # ACTUALLY THE SECOND AUTHENTICATION
-#     res = session.get(course['urlMoodle'], allow_redirects=True)
-
-#     # extract RelayState and SAMLResponse from last request
-#     tokenRelayState = extract_RelayState_from_HTML(res)
-#     tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
-
-#     # post to dol with tokens
-#     url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
-#     data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
-#     res = session.post(url, data=data, allow_redirects=True)
-
-#     # should be redirected to course page
-#     print(res.url)
-
-
-# # print courses names
-# for i in json:
-#     print(i['fullName'])
-#     print()
-
-# # print history of requests
-# for i in res.history:
-#     print(i.status_code, i.url)
-# print(res.url)
+    # post to dol with tokens
+    url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
+    data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
+    res = session.post(url, data=data, allow_redirects=True)
