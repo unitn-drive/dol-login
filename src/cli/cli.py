@@ -4,7 +4,7 @@ from login.login import input
 from login.login import get_attended_courses
 from login.login import get_available_courses
 from utils.utils import saveJSON
-# from login.subscribe import subscribe
+from login.subscribe import subscribe, unsubscribe
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -53,12 +53,15 @@ def parse_args():
     session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data = login(
         username, password)
 
-    if args.list_enrolled:
-        print("ATTENDED COURSES")
-        saveJSON('attended_courses', get_attended_courses(session, Bearer_auth))
+    # if args.list_enrolled:
+    #     print("ATTENDED COURSES")
+    #     saveJSON('attended_courses', get_attended_courses(session, Bearer_auth))
 
-    if args.list_available:
-        print("AVAILABLE COURSES")
-        saveJSON('avaiable_courses', get_available_courses(session, Bearer_auth))
+    # if args.list_available:
+    #     print("AVAILABLE COURSES")
+    #     saveJSON('avaiable_courses', get_available_courses(session, Bearer_auth))
 
-    # subscribe(session, 'Prova Pinamonti')
+    # sampleCourse = 'https://webapps.unitn.it/geco/#/public/redirectcorso/2022|91290|1|N0|75022'
+    # url = subscribe(session, Bearer_auth, sampleCourse)
+    # print(url)
+    
