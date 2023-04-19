@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name='unitn_course_scraper'
-version='0.1.0'
+version='0.1.5'
 authors=[
     { name="DISI Drive Team", email="unitndrive@gmail.com" }
 ]
@@ -21,3 +21,6 @@ classifiers=["Programming Language :: Python :: 3.7",
 keywords=['unitn', 'courses', 'scraper', '@unitn.it',
               'moodle', 'dol', 'gestionecorsi', 'didatticaonline']
 dependencies=['python-dotenv >= 1.0.0', 'requests >= 2.28.2', 'grequests >= 0.6.0', 'beautifulsoup4 >= 4.12.2']
+
+[project.scripts]
+unitn-course-scraper = "cli.cli:parse_args"
