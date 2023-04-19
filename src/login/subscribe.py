@@ -2,6 +2,7 @@ from requests import Session, Response
 from bs4 import BeautifulSoup as BS
 from re import compile
 from utils.utils import saveHTML
+from login.login import login_dol
 
 # tranform course url to the one we need to subscribe
 
@@ -31,8 +32,16 @@ def unsubscribe(session: Session, courseUrl: str) -> None:
     res = session.get(courseUrl, allow_redirects=True)
 
     # extract enrolid and sesskey from HTML
-    # TODO handle exceptions and in case of failure, login to dol and retry
-    enrolid = extract_enrolid_from_HTML(res)
+
+    # try catch to handle the case where the user is not enrolled
+    # and we cannot find the enrolid
+    # warning, potential infinite loop
+    try:
+        enrolid = extract_enrolid_from_HTML(res)
+    except Exception as e:
+        login_dol(session)
+        unsubscribe(session, courseUrl)
+        
     sesskey = extract_sesskey_from_HTML(res)
     url = 'https://didatticaonline.unitn.it/dol/enrol/manual/unenrolself.php'
     data = {
