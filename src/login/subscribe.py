@@ -20,16 +20,25 @@ def subscribe(session: Session, Bearer_auth: str,  courseUrl: str) -> str:
 
 
 def extract_enrolid_from_HTML(res: Response):
-    # return res.text.split('enrolid=', 1)[1]
-    soup = BS(res.text, 'html.parser')
-    try:
-        reg = compile(r'Disiscrivimi')
-        elements = [e for e in soup.find_all('a') if reg.match(e.text)]
-        return elements
-    except Exception as e:
-        print("Got unhandled exception %s" %
-              str(e) + ", while extracting enrolid from: " + res.url)
+    return res.text.split('enrolid=', 1)[1].split('"')[0]
+
+
+def extract_sesskey_from_HTML(res: Response):
+    return res.text.split('sesskey":"', 1)[1].split('"')[0]
 
 
 def unsubscribe(session: Session, courseUrl: str) -> None:
     res = session.get(courseUrl, allow_redirects=True)
+
+    # extract enrolid and sesskey from HTML
+    # TODO handle exceptions and in case of failure, login to dol and retry
+    enrolid = extract_enrolid_from_HTML(res)
+    sesskey = extract_sesskey_from_HTML(res)
+    url = 'https://didatticaonline.unitn.it/dol/enrol/manual/unenrolself.php'
+    data = {
+        'enrolid': enrolid,
+        'confirm': '1',
+        'sesskey': sesskey,
+    }
+    res = session.post(url, data=data, allow_redirects=True)
+    print(res.status_code)
