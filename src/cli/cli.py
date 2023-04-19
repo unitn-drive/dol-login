@@ -53,10 +53,10 @@ def parse_args():
     session, Bearer_auth, tokenRelayState, tokenSAMLResponse, data = login(
         username, password)
 
-    print("ATTENDED COURSES")
+    # if args.list_enrolled:
+    #     print("ATTENDED COURSES")
+    #     print(get_attended_courses(session, Bearer_auth))
 
-    saveJSON('attended_courses', get_attended_courses(session, Bearer_auth))
-
-    print("AVAILABLE COURSES")
-
-    saveJSON('available_courses', get_available_courses(session, Bearer_auth))
+    # if args.list_available:
+    #     print("AVAILABLE COURSES")
+    #     print(get_available_courses(session, Bearer_auth))
