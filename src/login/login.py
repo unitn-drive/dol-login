@@ -22,7 +22,7 @@ def input(env: str):
 def clean_json_list(json_list):
     # removing multi language substring and setting url of each course
     for i in json_list:
-        if 'id' not in i['urlMoodle']:
+        if 'target=' not in i['urlMoodle']:
             json_list.remove(i)
         else:
             if '{mlang other}' in i['fullName']:
