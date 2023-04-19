@@ -19,3 +19,8 @@ def printHistory(res):
     for i in res.history:
         print(i.status_code, i.url)
     print(res.url)
+
+
+def saveJSON(name, data):
+    with open(name + '.json', 'w') as file:
+        json.dump(data, file, indent=4)

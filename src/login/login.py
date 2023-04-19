@@ -32,6 +32,8 @@ def clean_json_list(json_list):
 
 
 # extract relay state token from html
+
+
 def extract_RelayState_from_HTML(res):
     soup = BS(res.text, 'html.parser')
     try:
@@ -133,7 +135,7 @@ def get_available_courses(session, auth):
     res = session.get(url, headers=headers, allow_redirects=True)
     # output list of courses
     json_list = res.json()
-    return json_list
+    return clean_json_list(json_list)
 
 
 # function to get course content
@@ -141,3 +143,17 @@ def get_course_content(session, auth, url):
     res = session.get(
         url, headers={'Authorization': auth}, allow_redirects=True)
     return True
+
+
+def login_dol(session: requests.Session):
+    res = session.get(
+        'https://didatticaonline.unitn.it/dol/auth/shibboleth/index.php', allow_redirects=True)
+
+    # extract RelayState and SAMLResponse from last request
+    tokenRelayState = extract_RelayState_from_HTML(res)
+    tokenSAMLResponse = extract_SAMLResponse_from_HTML(res)
+
+    # post to dol with tokens
+    url = 'https://didatticaonline.unitn.it/Shibboleth.sso/SAML2/POST'
+    data = {'RelayState': tokenRelayState, 'SAMLResponse': tokenSAMLResponse}
+    res = session.post(url, data=data, allow_redirects=True)
